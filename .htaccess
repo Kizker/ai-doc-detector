@@ -1,32 +1,38 @@
 # ==============================================================================
-# AI Document Detector — Apache / LiteSpeed Reverse Proxy (.htaccess)
+# AI Document Detector — Apache / LiteSpeed Production Configuration (.htaccess)
 # Domain: capm.andrichadhea.my.id
 # Target Directory: ~/domains/capm.andrichadhea.my.id/public_html
 # ==============================================================================
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteBase /
 
     # 1. Force HTTPS
     RewriteCond %{HTTPS} off
     RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-    # 2. Support WebSocket connections (Next.js HMR / real-time)
-    RewriteCond %{HTTP:Upgrade} =websocket [NC]
-    RewriteRule ^(.*)$ ws://127.0.0.1:3000/$1 [P,L]
+    # 2. Serve existing files and directories directly without rewriting
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
 
-    # 3. Reverse Proxy all traffic to Frontend Container (Next.js port 3000)
-    # Next.js internally proxies /api/* requests to FastAPI backend (port 8000)
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ http://127.0.0.1:3000/$1 [P,L]
+    # 3. Native SPA Front Controller Routing
+    RewriteRule ^ index.html [L]
 </IfModule>
 
-<IfModule mod_proxy.c>
-    ProxyPreserveHost On
-    ProxyRequests Off
-    RequestHeader set X-Forwarded-Proto "https" env=HTTPS
-    RequestHeader set X-Real-IP "%{REMOTE_ADDR}e"
+# Caching for Static Assets (Next.js Chunks, CSS, Images, Fonts)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/html "access plus 0 seconds"
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 month"
 </IfModule>
 
 # Security & Optimization Headers
@@ -36,3 +42,6 @@
     Header always set X-XSS-Protection "1; mode=block"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
+
+# Disable Directory Browsing
+Options -Indexes

@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { Upload, FileText, AlertCircle, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { analyzeTextClientSide } from "@/lib/detector";
 
 interface UploadFormProps {
   onScanComplete: (data: any) => void;
@@ -48,16 +49,31 @@ export default function UploadForm({ onScanComplete }: UploadFormProps) {
       "application/pdf", 
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       "image/jpeg",
-      "image/png"
+      "image/png",
+      "text/plain"
     ];
     
-    if (!allowedTypes.includes(file.type) && !file.name.endsWith('.pdf') && !file.name.endsWith('.docx') && !file.name.match(/\.(jpg|jpeg|png)$/i)) {
-      setError("Format file tidak didukung. Harap unggah PDF, DOCX, JPG, atau PNG.");
+    if (!allowedTypes.includes(file.type) && !file.name.endsWith('.pdf') && !file.name.endsWith('.docx') && !file.name.endsWith('.txt') && !file.name.match(/\.(jpg|jpeg|png)$/i)) {
+      setError("Format file tidak didukung. Harap unggah PDF, DOCX, TXT, JPG, atau PNG.");
       return;
     }
 
     setError(null);
     setIsScanning(true);
+
+    // If text file, can parse directly client-side
+    if (file.name.endsWith('.txt') || file.type === "text/plain") {
+      try {
+        const text = await file.text();
+        const clientResult = analyzeTextClientSide(text);
+        clientResult.filename = file.name;
+        clientResult.file_type = "txt";
+        onScanComplete(clientResult);
+        return;
+      } catch (err) {
+        // continue to upload attempt
+      }
+    }
 
     const formData = new FormData();
     formData.append("file", file);
@@ -69,14 +85,14 @@ export default function UploadForm({ onScanComplete }: UploadFormProps) {
       });
 
       if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.detail || "Gagal menganalisis dokumen.");
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.detail || "Server API offline pada static hosting. Silakan gunakan tab 'Tempel Teks' untuk audit teks instan tanpa batas.");
       }
 
       const data = await response.json();
       onScanComplete(data);
     } catch (err: any) {
-      setError(err.message || "Terjadi kesalahan yang tidak terduga.");
+      setError(err.message || "Gagal memproses file. Gunakan tab 'Tempel Teks' untuk analisis dokumen.");
     } finally {
       setIsScanning(false);
     }
@@ -100,15 +116,23 @@ export default function UploadForm({ onScanComplete }: UploadFormProps) {
         body: JSON.stringify({ text: textInput }),
       });
 
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.detail?.[0]?.msg || errData.detail || "Gagal menganalisis teks.");
+      if (response.ok) {
+        const data = await response.json();
+        onScanComplete(data);
+        return;
       }
-
-      const data = await response.json();
-      onScanComplete(data);
+      
+      // If API returns 404 or non-ok (e.g. static hosting), run client-side engine
+      const clientResult = analyzeTextClientSide(textInput);
+      onScanComplete(clientResult);
     } catch (err: any) {
-      setError(err.message || "Terjadi kesalahan yang tidak terduga.");
+      // Network error or offline - run client-side engine seamlessly
+      try {
+        const clientResult = analyzeTextClientSide(textInput);
+        onScanComplete(clientResult);
+      } catch (clientErr: any) {
+        setError(clientErr.message || "Terjadi kesalahan saat menganalisis teks.");
+      }
     } finally {
       setIsScanning(false);
     }
