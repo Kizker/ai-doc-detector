@@ -19,6 +19,14 @@ export const metadata: Metadata = {
   title: "AI Document Detector — Detect AI-Generated Content",
   description:
     "Analyze and detect AI-generated text in academic documents. Upload PDF, DOCX, or images for per-sentence AI detection with confidence scoring.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/favicon.svg",
+  },
   keywords: [
     "AI detector",
     "AI content detection",

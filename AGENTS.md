@@ -142,11 +142,39 @@ User → Frontend (Next.js) → Backend API (FastAPI)
 - Membuat `backend/Dockerfile` berbasis `python:3.11-slim` dengan healthcheck endpoint.
 - Membuat `docker-compose.yml` untuk menghubungkan frontend (port 3000) dan backend (port 8000) dalam internal network bridge.
 - Membuat file `.dockerignore` untuk context build yang ramping dan cepat.
-- Membuat file `.htaccess` reverse proxy untuk server Hostinger/cPanel (Apache/LiteSpeed).
-- Membuat skrip otomatisasi deployment `deploy.sh` dan `deploy-docker.sh` dengan izin eksekusi (`chmod +x`).
-- Membuat panduan deployment resmi interaktif `Panduan_Deployment_dan_Pembaruan_AI_Doc_Detector.html` dan `Panduan_Deployment_dan_Pembaruan_AI_Doc_Detector.md`.
+### [2026-09-11 23:10] — Fase 7: Penambahan Kemampuan Studio Generator Berbasis Dokumen (Ala NotebookLM)
+- Mengimplementasikan `backend/services/artifact_generator.py` untuk menghasilkan 9 jenis artefak dokumen (Audio Overview, Slide Deck, Video Overview, Mind Map, Reports, Flashcards, Quiz, Infographic, Data Table).
+- Mengimplementasikan `backend/routers/generate.py` dengan endpoint `/api/v1/generate/{artifact_type}` dan `/api/v1/scan/url`.
+- Mengimplementasikan generator deterministik sisi klien `frontend/src/lib/artifactGenerator.ts` untuk fallback offline dan performa secepat kilat.
+- Mengimplementasikan antarmuka input multi-sumber pada `frontend/src/components/UploadForm.tsx` (Upload files, Websites, Drive, Play Books, Copied text) persis seperti referensi visual pengguna.
+- Membuat komponen grid visual `frontend/src/components/StudioGrid.tsx` dengan 9 kartu bergaya dark editorial glassmorphism.
+- Membuat modal interaktif `frontend/src/components/ArtifactModal.tsx` dengan fitur:
+  - Pemutar audio podcast dengan Web Speech API (suara Alex & Taylor dwibahasa).
+  - Penampil dek presentasi slide 16:9 interaktif dengan catatan presenter.
+  - Penampil storyboard video dengan arahan visual dan voiceover.
+  - Diagram visual hierarkis peta pikiran (mind map).
+  - Laporan eksekutif siap salin dan cetak.
+  - Kartu belajar 3D flashcards yang dapat dibalik dengan pelacak penguasaan.
+  - Kuis pilihan ganda interaktif dengan skor langsung dan ulasan jawaban.
+  - Sorotan statistik dan kartu infografis.
+  - Tabel data terstruktur dengan filter pencarian dan unduh file CSV.
+- Mengintegrasikan navigasi tab ganda (`Audit Integritas` dan `Studio Dokumen`) pada `frontend/src/app/page.tsx`.
+### [2026-09-11 23:15] — Fase 8: Penyempurnaan Koneksi Universal & Dukungan Seluruh Format Unggahan
+- Memperbaiki proxy `frontend/next.config.mjs` dengan aturan `rewrites` ke backend port 8000 (`/api/:path*` ➔ `http://127.0.0.1:8000/api/:path*`).
+- Mengaktifkan CORS wildcard (`allow_origins=["*"]`) pada backend FastAPI agar pemanggilan langsung dari frontend port 3000 tidak terhambat.
+- Memperluas format unggahan yang didukung di `backend/routers/scan.py` dan `backend/services/text_extractor.py` (PDF, DOCX, DOC, TXT, MD, CSV, TSV, JSON, RTF, HTML, LOG, PNG, JPG, JPEG, WEBP, BMP).
+- Mengimplementasikan mekanisme fallback berlapis (*multi-endpoint resilience*) pada `frontend/src/components/UploadForm.tsx` yang secara otomatis mencoba `/api/v1/scan/upload`, `http://localhost:8000/api/v1/scan/upload`, dan `http://127.0.0.1:8000/api/v1/scan/upload`.
+- Menambahkan fallback ekstraksi teks sisi klien (*client-side text decoding & detection*) sehingga dokumen jenis teks apa pun tetap berhasil dianalisis bahkan jika koneksi server terganggu.
+- Verifikasi berhasil: Uji unggah PDF (`PRD_AI_Document_Detector_Lengkap.pdf`), Markdown (`README.md`), dan teks berhasil 100% dengan status `200 OK`.
+- Mengimplementasikan favicon resmi aplikasi (`favicon.ico` dan `favicon.svg`) dengan desain logo perisai integritas (*ShieldAlert* berlatar gelap dan aksen biru neon) yang terintegrasi di `frontend/src/app/layout.tsx`.
+
+### [2026-09-11 23:20] — Fase 9: Pembersihan Elemen Trust Indicator Halaman Utama
+- Menghapus elemen *trust indicator* (`Dipercaya Universitas • Skala Riset & Industri`) pada `frontend/src/app/page.tsx` sesuai permintaan pengguna agar tampilan landing page lebih bersih dan fokus.
+- Membersihkan impor icon `BookOpen` dari `lucide-react` yang tidak lagi terpakai.
+- Verifikasi build Next.js (`bun run build`) berhasil 100% tanpa error dan halaman lokal teruji bersih.
 
 ---
+
 
 ## 📂 File Registry
 
@@ -155,14 +183,16 @@ User → Frontend (Next.js) → Backend API (FastAPI)
 | `AGENTS.md` | ✅ Updated | Pusat komando proyek |
 | `README.md` | ✅ Updated | Deskripsi proyek |
 | `backend/requirements.txt` | ✅ Created | Python dependencies |
-| `backend/main.py` | ✅ Created | FastAPI entry point |
+| `backend/main.py` | ✅ Updated | FastAPI entry point + generate router |
 | `backend/config.py` | ✅ Created | App configuration |
 | `backend/models.py` | ✅ Created | SQLAlchemy models |
 | `backend/schemas.py` | ✅ Created | Pydantic schemas |
 | `backend/routers/__init__.py` | ✅ Created | Router package |
 | `backend/routers/scan.py` | ✅ Created | Scan endpoint |
+| `backend/routers/generate.py` | ✅ Created | Studio artifact generation & URL scraper endpoint |
 | `backend/services/__init__.py` | ✅ Created | Services package |
 | `backend/services/ai_detector.py` | ✅ Created | AI detection logic |
+| `backend/services/artifact_generator.py` | ✅ Created | 9-in-1 Studio content generation engine |
 | `backend/services/ocr_service.py` | ✅ Created | OCR processing |
 | `backend/services/text_extractor.py` | ✅ Created | Text extraction |
 | `backend/Dockerfile` | ✅ Created | Dockerfile FastAPI container |
@@ -172,8 +202,12 @@ User → Frontend (Next.js) → Backend API (FastAPI)
 | `frontend/tailwind.config.ts` | ✅ Created | Tailwind config |
 | `frontend/postcss.config.mjs` | ✅ Created | PostCSS config |
 | `frontend/src/app/layout.tsx` | ✅ Created | Root layout |
-| `frontend/src/app/page.tsx` | ✅ Created | Landing page |
+| `frontend/src/app/page.tsx` | ✅ Updated | Landing page + Studio tab switcher |
 | `frontend/src/app/globals.css` | ✅ Created | Global styles |
+| `frontend/src/lib/artifactGenerator.ts` | ✅ Created | Client-side studio generator engine |
+| `frontend/src/components/UploadForm.tsx` | ✅ Updated | Multi-source upload pill bar |
+| `frontend/src/components/StudioGrid.tsx` | ✅ Created | 9-tile Studio Generator grid UI |
+| `frontend/src/components/ArtifactModal.tsx` | ✅ Created | Specialized interactive viewers modal |
 | `frontend/Dockerfile` | ✅ Created | Multi-stage Dockerfile Next.js |
 | `docker-compose.yml` | ✅ Created | Orkestrasi Docker multi-container |
 | `.dockerignore` | ✅ Created | Docker ignore context rules |

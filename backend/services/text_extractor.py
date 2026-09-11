@@ -27,10 +27,28 @@ class TextExtractorService:
             return self._extract_from_pdf(file_bytes)
         elif file_ext == ".docx":
             return self._extract_from_docx(file_bytes)
-        elif file_ext in (".png", ".jpg", ".jpeg"):
+        elif file_ext in (".txt", ".text", ".md", ".markdown", ".csv", ".tsv", ".json", ".rtf", ".html", ".htm", ".log"):
+            return self._extract_from_text(file_bytes)
+        elif file_ext in (".png", ".jpg", ".jpeg", ".webp", ".bmp"):
             # Images are handled by OCR service
             return None
         else:
+            # Generic fallback text decode for any file
+            return self._extract_from_text(file_bytes)
+
+    def _extract_from_text(self, file_bytes: bytes) -> Optional[str]:
+        """Extract plain text / markdown / csv / json content with charset auto-detection."""
+        try:
+            for enc in ("utf-8", "latin-1", "cp1252", "utf-16"):
+                try:
+                    text = file_bytes.decode(enc).strip()
+                    if text:
+                        return text
+                except UnicodeDecodeError:
+                    continue
+            return file_bytes.decode("utf-8", errors="ignore")
+        except Exception as e:
+            print(f"[TextExtractor] Text decode error: {e}")
             return None
 
     def _extract_from_pdf(self, file_bytes: bytes) -> Optional[str]:

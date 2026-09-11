@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import settings
-from routers import scan
+from routers import scan, generate
 
 # ── App Initialization ─────────────────────────────────────────────
 app = FastAPI(
@@ -21,7 +21,7 @@ app = FastAPI(
 # ── CORS Middleware ────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -29,6 +29,7 @@ app.add_middleware(
 
 # ── Router Registration ───────────────────────────────────────────
 app.include_router(scan.router, prefix="/api/v1", tags=["scan"])
+app.include_router(generate.router, prefix="/api/v1", tags=["generate"])
 
 
 # ── Root Endpoint ──────────────────────────────────────────────────

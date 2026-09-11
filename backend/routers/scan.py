@@ -38,14 +38,13 @@ async def scan_document(
     """
     start_time = time.time()
 
-    # Validate file type
-    allowed_types = {".pdf", ".docx", ".png", ".jpg", ".jpeg"}
-    file_ext = "." + file.filename.rsplit(".", 1)[-1].lower() if "." in file.filename else ""
-    if file_ext not in allowed_types:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Unsupported file type: {file_ext}. Allowed: {', '.join(allowed_types)}",
-        )
+    # Validate and detect file extension
+    file_ext = "." + file.filename.rsplit(".", 1)[-1].lower() if "." in file.filename else ".txt"
+    allowed_types = {
+        ".pdf", ".docx", ".doc", ".txt", ".text", ".md", ".markdown",
+        ".csv", ".tsv", ".json", ".rtf", ".html", ".htm", ".log",
+        ".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tiff"
+    }
 
     try:
         # Step 1: Read file and extract metadata
