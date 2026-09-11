@@ -41,17 +41,14 @@ class AIDetectorService:
         self._setup_nltk()
 
     def _setup_nltk(self):
-        """Download required NLTK data if not present."""
+        """Check for required NLTK data without blocking network calls."""
         try:
             import nltk
             try:
                 nltk.data.find("tokenizers/punkt_tab")
+                self._nltk_ready = True
             except LookupError:
-                try:
-                    nltk.download("punkt_tab", quiet=True)
-                except Exception:
-                    pass
-            self._nltk_ready = True
+                self._nltk_ready = False
         except ImportError:
             self._nltk_ready = False
 

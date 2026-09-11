@@ -127,13 +127,32 @@ User → Frontend (Next.js) → Backend API (FastAPI)
 - Simulasi integrasi sukses: teks dikirim dari frontend ke backend, heuristik dihitung, dan hasil dikembalikan dengan cepat ke frontend. UI merender komponen _AnalysisReport_ tanpa *error*.
 - Project selesai dan sukses.
 
+### [2026-09-11 21:52] — Fase 5: Setup & Eksekusi Lokal macOS (Apple Silicon ARM64)
+- Setup Python venv di `backend/.venv` dengan dependensi inti (FastAPI, Uvicorn, Pydantic, Python-Multipart, NLTK, Textstat, python-docx, pdfplumber).
+- Optimasi `backend/services/ai_detector.py`: Memperbaiki `_setup_nltk` agar tidak blocking saat startup jika paket NLTK belum terunduh (menggunakan regex fallback yang ultra-cepat).
+- Instalasi dependensi frontend melalui Bun (`bun install`).
+- Menjalankan Backend FastAPI di port 8000 (`http://localhost:8000`).
+- Menjalankan Frontend Next.js di port 3000 (`http://localhost:3000`).
+- Verifikasi API scan `/api/v1/scan/text` berhasil melalui proxy Next.js dengan latensi ~3ms.
+- Membuka aplikasi secara otomatis di browser default sistem macOS (`open http://localhost:3000`).
+
+### [2026-09-11 22:05] — Fase 6: Persiapan Deployment SSH & Docker (Target: capm.andrichadhea.my.id)
+- Mengonfigurasi `frontend/next.config.mjs` untuk output standalone dan dynamic rewrite URL (`BACKEND_INTERNAL_URL`).
+- Membuat multi-stage `frontend/Dockerfile` berbasis `node:20-alpine` dengan unprivileged user `nextjs`.
+- Membuat `backend/Dockerfile` berbasis `python:3.11-slim` dengan healthcheck endpoint.
+- Membuat `docker-compose.yml` untuk menghubungkan frontend (port 3000) dan backend (port 8000) dalam internal network bridge.
+- Membuat file `.dockerignore` untuk context build yang ramping dan cepat.
+- Membuat file `.htaccess` reverse proxy untuk server Hostinger/cPanel (Apache/LiteSpeed).
+- Membuat skrip otomatisasi deployment `deploy.sh` dan `deploy-docker.sh` dengan izin eksekusi (`chmod +x`).
+- Membuat panduan deployment resmi interaktif `Panduan_Deployment_dan_Pembaruan_AI_Doc_Detector.html` dan `Panduan_Deployment_dan_Pembaruan_AI_Doc_Detector.md`.
+
 ---
 
 ## 📂 File Registry
 
 | File | Status | Deskripsi |
 |------|--------|-----------|
-| `AGENTS.md` | ✅ Created | Pusat komando proyek |
+| `AGENTS.md` | ✅ Updated | Pusat komando proyek |
 | `README.md` | ✅ Updated | Deskripsi proyek |
 | `backend/requirements.txt` | ✅ Created | Python dependencies |
 | `backend/main.py` | ✅ Created | FastAPI entry point |
@@ -146,11 +165,22 @@ User → Frontend (Next.js) → Backend API (FastAPI)
 | `backend/services/ai_detector.py` | ✅ Created | AI detection logic |
 | `backend/services/ocr_service.py` | ✅ Created | OCR processing |
 | `backend/services/text_extractor.py` | ✅ Created | Text extraction |
+| `backend/Dockerfile` | ✅ Created | Dockerfile FastAPI container |
 | `frontend/package.json` | ✅ Created | Node.js config |
 | `frontend/tsconfig.json` | ✅ Created | TypeScript config |
-| `frontend/next.config.ts` | ✅ Created | Next.js config |
+| `frontend/next.config.mjs` | ✅ Updated | Next.js config (standalone & proxy) |
 | `frontend/tailwind.config.ts` | ✅ Created | Tailwind config |
 | `frontend/postcss.config.mjs` | ✅ Created | PostCSS config |
 | `frontend/src/app/layout.tsx` | ✅ Created | Root layout |
 | `frontend/src/app/page.tsx` | ✅ Created | Landing page |
 | `frontend/src/app/globals.css` | ✅ Created | Global styles |
+| `frontend/Dockerfile` | ✅ Created | Multi-stage Dockerfile Next.js |
+| `docker-compose.yml` | ✅ Created | Orkestrasi Docker multi-container |
+| `.dockerignore` | ✅ Created | Docker ignore context rules |
+| `.htaccess` | ✅ Created | Apache/LiteSpeed reverse proxy |
+| `deploy.sh` | ✅ Created | Skrip deployment otomatis server SSH |
+| `deploy-docker.sh` | ✅ Created | Skrip rebuild Docker di server |
+| `Panduan_Deployment_dan_Pembaruan_AI_Doc_Detector.html` | ✅ Created | Panduan visual SOP deployment |
+| `Panduan_Deployment_dan_Pembaruan_AI_Doc_Detector.md` | ✅ Created | Panduan markdown SOP deployment |
+| `Panduan_Deployment_dan_Pembaruan_AI_Doc_Detector.pdf` | ✅ Created | Dokumen cetak PDF SOP deployment resmi |
+

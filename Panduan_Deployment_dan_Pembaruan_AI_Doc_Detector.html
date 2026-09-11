@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panduan Deployment & Pembaruan AI Document Detector</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+    @page {
+      size: A4 portrait;
+      margin: 10mm 12mm 10mm 12mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #1e293b;
+      background-color: #ffffff;
+      line-height: 1.45;
+      font-size: 11.5px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      border-bottom: 2px solid #2563eb;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .header-left h1 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #1e3a8a;
+      letter-spacing: -0.4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-left h1 span.badge {
+      font-size: 10px;
+      background: #dbeafe;
+      color: #1d4ed8;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-weight: 700;
+      border: 1px solid #bfdbfe;
+    }
+
+    .header-left p {
+      color: #4b5563;
+      font-size: 11px;
+      margin-top: 2px;
+      font-weight: 500;
+    }
+
+    .header-right {
+      text-align: right;
+      font-size: 10.5px;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .header-right strong {
+      color: #1e40af;
+    }
+
+    /* Grid summary */
+    .grid-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .card-info {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 7px 10px;
+    }
+
+    .card-info .label {
+      font-size: 9px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #2563eb;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .card-info .value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #0f172a;
+      word-break: break-all;
+    }
+
+    /* Section Styling */
+    h2 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-top: 11px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-left: 3.5px solid #2563eb;
+      padding-left: 6px;
+    }
+
+    p.desc {
+      color: #4b5563;
+      font-size: 11px;
+      margin-bottom: 6px;
+    }
+
+    /* Box Card Steps */
+    .step-box {
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      border-radius: 6px;
+      padding: 8px 11px;
+      margin-bottom: 7px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    }
+
+    .step-box-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 5px;
+    }
+
+    .step-badge {
+      width: 18px;
+      height: 18px;
+      background: #2563eb;
+      color: #ffffff;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .step-badge.indigo {
+      background: #4f46e5;
+    }
+
+    /* Terminal Code Block */
+    pre {
+      background: #090d16;
+      color: #f1f5f9;
+      border-radius: 5px;
+      padding: 7px 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      line-height: 1.4;
+      overflow-x: auto;
+      border: 1px solid #1e293b;
+      margin: 4px 0;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+    }
+
+    .inline-code {
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-weight: 600;
+      border: 1px solid #e2e8f0;
+      font-size: 10px;
+    }
+
+    /* Alerts / Callout */
+    .alert {
+      padding: 6px 9px;
+      border-radius: 5px;
+      font-size: 10.5px;
+      margin-top: 5px;
+      display: flex;
+      gap: 6px;
+      align-items: flex-start;
+      line-height: 1.4;
+    }
+
+    .alert-info {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+    }
+
+    .alert-success {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+    }
+
+    .alert-warning {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+    }
+
+    .alert-tip {
+      background: #faf5ff;
+      border: 1px solid #e9d5ff;
+      color: #6b21a8;
+    }
+
+    .page-break {
+      page-break-before: always;
+      break-before: page;
+    }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 14px;
+      padding-top: 8px;
+      border-top: 1px dashed #cbd5e1;
+      font-size: 9.5px;
+      color: #94a3b8;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 6px 0;
+      font-size: 10.5px;
+    }
+
+    th, td {
+      border: 1px solid #e2e8f0;
+      padding: 5px 8px;
+      text-align: left;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #334155;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ==================== PAGE 1 ==================== -->
+  <div class="header">
+    <div class="header-left">
+      <h1>AI DOCUMENT DETECTOR <span class="badge">Production Guide</span></h1>
+      <p>SOP Deployment, Docker Multi-Container & Pembaruan Otomatis ke Server Hostinger</p>
+    </div>
+    <div class="header-right">
+      <div>Versi: <strong>1.0 (Next.js 14 + FastAPI + Docker)</strong></div>
+      <div>Terakhir Diperbarui: <strong>September 2026</strong></div>
+    </div>
+  </div>
+
+  <div class="grid-summary">
+    <div class="card-info">
+      <div class="label">AKSES SSH SERVER</div>
+      <div class="value">ssh -p 65002 u141095167@46.202.138.88</div>
+    </div>
+    <div class="card-info">
+      <div class="label">DIREKTORI WEB TARGET</div>
+      <div class="value">~/domains/capm.andrichadhea.my.id/public_html</div>
+    </div>
+    <div class="card-info">
+      <div class="label">REPOSITORY GITHUB</div>
+      <div class="value">https://github.com/Kizker/ai-doc-detector.git</div>
+    </div>
+    <div class="card-info">
+      <div class="label">DOMAIN UTAMA</div>
+      <div class="value">https://capm.andrichadhea.my.id</div>
+    </div>
+    <div class="card-info">
+      <div class="label">STACK ENGINE</div>
+      <div class="value">Next.js 14 Standalone + FastAPI Python 3.11</div>
+    </div>
+    <div class="card-info">
+      <div class="label">OPSI CONTAINER</div>
+      <div class="value">Docker Multi-Container & Docker Compose</div>
+    </div>
+  </div>
+
+  <h2>1. Alur Kerja Rutin Saat Ada Pembaruan (Workflow Cepat)</h2>
+  <p class="desc">Setiap kali Anda selesai mengubah kode di komputer lokal dan ingin menerapkannya ke website live, ikuti 2 tahap mudah berikut:</p>
+
+  <div class="step-box">
+    <div class="step-box-title">
+      <span class="step-badge">A</span>
+      <span>Di Komputer Lokal (Mac / PC): Commit & Push ke GitHub</span>
+    </div>
+    <pre># 1. Pastikan perubahan kode lokal di-commit dan push ke repository
+git add .
+git commit -m "Update fitur atau perbaikan terbaru"
+git push origin main</pre>
+  </div>
+
+  <div class="step-box">
+    <div class="step-box-title">
+      <span class="step-badge indigo">B</span>
+      <span>Di Server Hostinger: Terapkan Pembaruan (1 Baris Perintah)</span>
+    </div>
+    <pre># 1. Login SSH ke Server Hostinger
+ssh -p 65002 u141095167@46.202.138.88
+
+# 2. Masuk ke direktori domain & jalankan deploy script
+cd ~/domains/capm.andrichadhea.my.id/public_html
+bash deploy.sh</pre>
+    <div class="alert alert-success">
+      <span>💡</span>
+      <span>Perintah <strong>bash deploy.sh</strong> secara otomatis menarik kode terbaru dari GitHub, memicu build container Docker (Frontend Next.js port 3000 dan Backend FastAPI port 8000), dan mengatur hak akses folder secara aman.</span>
+    </div>
+  </div>
+
+  <h2>2. Prosedur Pembaruan Manual (Jika Tanpa Script)</h2>
+  <pre># Masuk ke direktori server
+cd ~/domains/capm.andrichadhea.my.id/public_html
+
+# Ambil update terbaru dari GitHub
+git fetch origin main && git reset --hard origin/main && git pull origin main
+
+# Jalankan orkestrasi container Docker
+docker compose up -d --build
+
+# Atur perizinan file
+chmod -R 755 . && chmod 644 .htaccess</pre>
+
+  <!-- ==================== PAGE 2 ==================== -->
+  <div class="page-break"></div>
+
+  <h2>3. Setup Awal / Pemulihan Server (Fresh Installation)</h2>
+  <p class="desc">Jika direktori di server masih kosong atau Anda ingin melakukan instalasi ulang dari nol:</p>
+
+  <div class="step-box">
+    <div class="step-box-title">
+      <span class="step-badge">1</span>
+      <span>Kloning & Sinkronisasi Kode dari GitHub</span>
+    </div>
+    <pre># Masuk ke direktori domain di server
+mkdir -p ~/domains/capm.andrichadhea.my.id/public_html
+cd ~/domains/capm.andrichadhea.my.id/public_html
+
+# Inisialisasi git dan clone repo
+git init
+git remote remove origin 2>/dev/null || true
+git remote add origin https://github.com/Kizker/ai-doc-detector.git
+git fetch origin main
+git reset --hard origin/main
+git pull origin main
+
+# Hapus file default bawaan hosting jika ada
+rm -f default.php index.php.bak</pre>
+  </div>
+
+  <div class="step-box">
+    <div class="step-box-title">
+      <span class="step-badge">2</span>
+      <span>Jalankan Deploy Script & Konfigurasi .htaccess</span>
+    </div>
+    <pre># Beri izin eksekusi script dan jalankan
+chmod +x deploy.sh deploy-docker.sh
+bash deploy.sh</pre>
+    <div class="alert alert-info">
+      <span>ℹ️</span>
+      <span>File <strong>.htaccess</strong> sudah otomatis disediakan di dalam repositori untuk menangani reverse proxy Apache/LiteSpeed menuju container Next.js di port 3000 lengkap dengan dukungan WebSocket.</span>
+    </div>
+  </div>
+
+  <h2>4. Deployment Menggunakan Docker (Multi-Container Architecture)</h2>
+  <p class="desc">Aplikasi ini berjalan dengan 2 container terisolasi yang dihubungkan melalui internal bridge network <span class="inline-code">ai_doc_detector_net</span>:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Container Name</th>
+        <th style="width: 20%;">Service Engine</th>
+        <th style="width: 15%;">Port</th>
+        <th style="width: 40%;">Peran & Tanggung Jawab</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>ai_doc_frontend</code></td>
+        <td>Next.js 14 Standalone</td>
+        <td><code>3000</code></td>
+        <td>Antarmuka Web, upload dokumen, report viewer</td>
+      </tr>
+      <tr>
+        <td><code>ai_doc_backend</code></td>
+        <td>FastAPI (Python 3.11)</td>
+        <td><code>8000</code></td>
+        <td>Ekstraksi teks (PDF/DOCX), scoring NLP, metadata forensik</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="step-box">
+    <div class="step-box-title">
+      <span class="step-badge indigo">🐳</span>
+      <span>Opsi A: Jalankan dengan Docker Compose (Direkomendasikan)</span>
+    </div>
+    <pre># Bangun image dan jalankan container di background
+docker compose up -d --build
+
+# Cek status container
+docker compose ps
+docker compose logs -f</pre>
+  </div>
+
+  <div class="step-box">
+    <div class="step-box-title">
+      <span class="step-badge indigo">⚡</span>
+      <span>Opsi B: Otomasi Pembaruan Docker (1 Baris Perintah)</span>
+    </div>
+    <pre># Jalankan script pembaruan otomatis Docker
+bash deploy-docker.sh</pre>
+    <div class="alert alert-tip">
+      <span>🚀</span>
+      <span>Frontend Next.js dikompilasi dengan mode <strong>standalone</strong>, memangkas ukuran image dari ~1GB menjadi ~90MB untuk performa server yang ringan dan efisien.</span>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 3 ==================== -->
+  <div class="page-break"></div>
+
+  <h2>5. Konfigurasi Reverse Proxy (.htaccess & Nginx)</h2>
+  <p class="desc">Meneruskan seluruh trafik HTTPS domain <span class="inline-code">capm.andrichadhea.my.id</span> ke container Frontend port 3000:</p>
+
+  <p class="desc" style="font-weight: 600; color: #1e293b; margin-top: 4px;">A. Hostinger / Apache / LiteSpeed (via .htaccess di public_html):</p>
+  <pre>&lt;IfModule mod_rewrite.c&gt;
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Dukungan WebSocket
+    RewriteCond %{HTTP:Upgrade} =websocket [NC]
+    RewriteRule ^(.*)$ ws://127.0.0.1:3000/$1 [P,L]
+
+    # Reverse proxy ke Frontend Next.js port 3000
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ http://127.0.0.1:3000/$1 [P,L]
+&lt;/IfModule&gt;</pre>
+
+  <p class="desc" style="font-weight: 600; color: #1e293b; margin-top: 4px;">B. VPS Nginx Native (Jika Menggunakan Server VPS Dedicated):</p>
+  <pre>server {
+    server_name capm.andrichadhea.my.id;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+# Pasang SSL Gratis Let's Encrypt (Certbot)
+sudo certbot --nginx -d capm.andrichadhea.my.id</pre>
+
+  <h2>6. Troubleshooting & Tips Penting</h2>
+
+  <div class="alert alert-warning">
+    <span>⚠️</span>
+    <div>
+      <strong>Error 502 Bad Gateway / Connection Refused:</strong><br>
+      Pastikan container sedang berjalan dengan mengecek <span class="inline-code">docker compose ps</span>. Jika container berhenti atau crash, jalankan <span class="inline-code">docker compose logs -f</span> untuk menganalisis log backend atau frontend.
+    </div>
+  </div>
+
+  <div class="alert alert-warning">
+    <span>⚠️</span>
+    <div>
+      <strong>Upload Dokumen Gagal (413 Payload Too Large):</strong><br>
+      Pastikan web server mengizinkan upload hingga 50MB. Jika menggunakan Nginx, tambahkan direktif <span class="inline-code">client_max_body_size 50M;</span> di dalam blok <span class="inline-code">server { ... }</span>.
+    </div>
+  </div>
+
+  <div class="alert alert-info">
+    <span>🔄</span>
+    <div>
+      <strong>Tampilan belum berubah setelah deploy (Cache Browser / Cloudflare):</strong><br>
+      Lakukan Hard Refresh di browser dengan menekan kombinasi <span class="inline-code">Ctrl + F5</span> (Windows) atau <span class="inline-code">Cmd + Shift + R</span> (Mac). Jika menggunakan Cloudflare, buka menu <em>Caching &rarr; Configuration &rarr; Purge Everything</em>.
+    </div>
+  </div>
+
+  <div class="alert alert-tip">
+    <span>📑</span>
+    <div>
+      <strong>Dokumentasi Interaktif API (Swagger UI):</strong><br>
+      REST API Backend menyediakan dokumentasi endpoint interaktif yang dapat diakses secara internal melalui <span class="inline-code">http://127.0.0.1:8000/docs</span>.
+    </div>
+  </div>
+
+  <div class="footer-note">
+    Dokumen ini digenerate secara otomatis untuk dokumentasi operasional <strong>AI Document Detector (capm.andrichadhea.my.id)</strong>.
+  </div>
+
+</div>
+</body>
+</html>

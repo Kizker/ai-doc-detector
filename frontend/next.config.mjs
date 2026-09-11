@@ -3,12 +3,16 @@ const nextConfig = {
   // Enable React strict mode for better development experience
   reactStrictMode: true,
 
-  // API proxy to backend during development
+  // Output standalone build for lightweight production Docker containers
+  output: "standalone",
+
+  // API proxy to backend during development & production
   async rewrites() {
+    const backendUrl = process.env.BACKEND_INTERNAL_URL || "http://localhost:8000/api/:path*";
     return [
       {
         source: "/api/:path*",
-        destination: "http://localhost:8000/api/:path*",
+        destination: backendUrl,
       },
     ];
   },

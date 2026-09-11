@@ -1,0 +1,44 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ai_doc_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DEBUG=false
+      - CORS_ORIGINS=["http://localhost:3000","https://capm.andrichadhea.my.id","http://capm.andrichadhea.my.id"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - ai_doc_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ai_doc_frontend
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - BACKEND_INTERNAL_URL=http://backend:8000/api/:path*
+    depends_on:
+      backend:
+        condition: service_started
+    networks:
+      - ai_doc_network
+
+networks:
+  ai_doc_network:
+    name: ai_doc_detector_net
+    driver: bridge

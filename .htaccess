@@ -1,0 +1,38 @@
+# ==============================================================================
+# AI Document Detector — Apache / LiteSpeed Reverse Proxy (.htaccess)
+# Domain: capm.andrichadhea.my.id
+# Target Directory: ~/domains/capm.andrichadhea.my.id/public_html
+# ==============================================================================
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 1. Force HTTPS
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # 2. Support WebSocket connections (Next.js HMR / real-time)
+    RewriteCond %{HTTP:Upgrade} =websocket [NC]
+    RewriteRule ^(.*)$ ws://127.0.0.1:3000/$1 [P,L]
+
+    # 3. Reverse Proxy all traffic to Frontend Container (Next.js port 3000)
+    # Next.js internally proxies /api/* requests to FastAPI backend (port 8000)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ http://127.0.0.1:3000/$1 [P,L]
+</IfModule>
+
+<IfModule mod_proxy.c>
+    ProxyPreserveHost On
+    ProxyRequests Off
+    RequestHeader set X-Forwarded-Proto "https" env=HTTPS
+    RequestHeader set X-Real-IP "%{REMOTE_ADDR}e"
+</IfModule>
+
+# Security & Optimization Headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
